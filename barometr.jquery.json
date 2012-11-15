@@ -1,0 +1,28 @@
+{
+  "name": "barometr",
+  "title": "Barometr",
+  "description": "The best jQuery plugin ever.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/qmmr/barometr",
+  "author": {
+    "name": "Marcin Kumorek",
+    "email": "kumeek@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qmmr/barometr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/qmmr/barometr/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/qmmr/barometr/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "*"
+  },
+  "keywords": []
+}
