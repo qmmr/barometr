@@ -1,0 +1,4 @@
+barometr
+========
+
+jQuery plugin
