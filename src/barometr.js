@@ -27,7 +27,7 @@
   };
 
   Barometr.prototype.init = function() {
-    var h1 = $('<h1/>', {text: config.question}).appendTo(this.element);
+    var h1 = $('<h1/>', {text: this.config.question}).appendTo(this.element);
     var form = $('<form>').addClass(this.config.formClass).appendTo(this.element);
     var yes = $('<input>', {type: 'radio', name: 'radio', id: 'yesRadio'}).appendTo(form);
     var no = $('<input>', {type: 'radio', name: 'radio', id: 'noRadio'}).appendTo(form);
