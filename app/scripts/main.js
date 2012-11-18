@@ -11,6 +11,13 @@ require(['barometr'], function(barometr) {
     'use strict';
 
     $(function() {
-        $('.barometr').barometr();
+        var options = {
+            ajaxOptions: {
+                headers: {
+                    'X-REQUESTED-BY': 'barometr'
+                }
+            }
+        };
+        $('.barometr').barometr(options);
     });
 });
