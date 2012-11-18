@@ -12,6 +12,8 @@
     question    : 'Coca-Cola or Pepsi?'
     ,formId     : 'barometrForm'
     ,formClass  : 'barometrForm'
+    ,errorMessage : 'Houston... we\'ve got problem...'
+    ,errorClass : 'error'
     ,buttonText : 'Submit'
     ,ajaxOptions: {
       url          : 'server.php'
@@ -19,11 +21,16 @@
       ,dataType    : 'json'
       ,contentType : 'application/json; charset-utf-8'
     }
-    ,beforeAjax: function (el) {
-      console.log('beforeAjax', el);
+    ,beforeAjax: function () {
+      console.log('beforeAjax');
     }
-    ,created: function(el) {
+    ,created: function(e, el) {
+      console.log('created', arguments);
       el.fadeIn(500);
+    }
+    ,responseError: function (e, el, xhr) {
+      console.log('responseError', el, xhr);
+      // return false;
     }
   };
 
@@ -49,10 +56,23 @@
       barometr.element.trigger('beforeAjax.barometr');
       // send AJAX
       var jqxhr = $.ajax(ajaxSettings);
+
       // success
       jqxhr.done(function(data) {
         // do something with data
         console.log(data);
+      });
+
+      // fail
+      jqxhr.fail(function(data) {
+        var returnVal = barometr.element.triggerHandler('responseError.barometr', data);
+        // if return value from responseError is falsy we run default action
+        if (!returnVal) {
+          $('<p>', {
+            text: barometr.config.errorMessage,
+            class: barometr.config.errorClass
+          }).appendTo(barometr.element);
+        }
       });
 
       barometr.element.width(barometr.element.width()).height(barometr.element.height()).find('form').remove();
@@ -61,8 +81,8 @@
     // chcheck if any callback functions are in the config
     $.each(barometr.config, function(key, val) {
       if (typeof val === 'function') {
-        barometr.element.on(key + '.barometr', function() {
-          val(barometr.element);
+        barometr.element.on(key + '.barometr', function(e, params) {
+          return val(e, barometr.element, params);
         });
       }
     });
