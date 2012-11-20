@@ -12,11 +12,12 @@ require(['barometr'], function(barometr) {
 
     $(function() {
         var options = {
-            ajaxOptions: {
-                headers: {
-                    'X-REQUESTED-BY': 'barometr'
-                }
-            }
+          ajaxOptions: {
+            url: '../app/poll.php'
+            // ,headers: {
+            //     'X-REQUESTED-BY': 'barometr'
+            // }
+          }
         };
         $('.barometr').barometr(options);
     });

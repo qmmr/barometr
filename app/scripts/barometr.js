@@ -9,27 +9,30 @@
 ;(function($) {
   'use strict';
   var defaults = {
-    question    : 'Coca-Cola or Pepsi?'
-    ,formId     : 'barometrForm'
-    ,formClass  : 'barometrForm'
+    question      : 'What is your favorite programming language?'
+    ,answers      : ['JavaScript', 'Ruby', 'PHP', 'Java', 'Python', 'C', 'C++', 'C#']
+    ,formId       : 'barometrForm'
+    ,formClass    : 'barometrForm'
     ,errorMessage : 'Houston... we\'ve got problem...'
-    ,errorClass : 'error'
-    ,buttonText : 'Submit'
+    ,errorClass   : 'error'
+    ,buttonText   : 'Submit'
     ,ajaxOptions: {
-      url          : 'server.php'
+      url          : 'poll.php'
       ,type        : 'POST'
       ,dataType    : 'json'
-      ,contentType : 'application/json; charset-utf-8'
+      // ,contentType : 'application/json'
     }
-    ,beforeAjax: function () {
-      console.log('beforeAjax');
+    ,beforeAjax: function (e, el, data) {
+      // console.log('beforeAjax', data);
+    }
+    ,ajaxDone: function (e, el, data) {
+      // console.log('data ajaxDone', data);
     }
     ,created: function(e, el) {
-      console.log('created', arguments);
       el.fadeIn(500);
     }
     ,responseError: function (e, el, xhr) {
-      console.log('responseError', el, xhr);
+      // console.log('responseError', el, xhr);
       // return false;
     }
   };
@@ -46,21 +49,25 @@
     barometr.element.on('submit', function (e) {
       e.preventDefault();
 
-      console.log('submit');
       // store data in object so that we can extend ajaxOptions and pass it to $.ajax
       var dataContainer = {
-        data: JSON.stringify({selected: barometr.element.find(':checked').val()})
+        data: {answers: barometr.config.answers}
+        // data: JSON.stringify({answers: barometr.config.answers})
+        // data: JSON.stringify({selected: barometr.element.find(':checked').val()})
       };
-      var ajaxSettings = $.extend({}, barometr.config.ajaxOptions, dataContainer);
+      // extend default ajaxOptions with data
+      var ajaxSettings = $.extend(true, {}, barometr.config.ajaxOptions, dataContainer);
       // run the pre ajax function
-      barometr.element.trigger('beforeAjax.barometr');
+      barometr.element.trigger('beforeAjax.barometr', dataContainer);
       // send AJAX
       var jqxhr = $.ajax(ajaxSettings);
-
       // success
       jqxhr.done(function(data) {
-        // do something with data
-        console.log(data);
+        // console.log('data in done', data);
+        // trigger custom function
+        barometr.element.trigger('ajaxDone.barometr', data);
+        // process received data
+        barometr.processData(data);
       });
 
       // fail
@@ -75,7 +82,7 @@
         }
       });
 
-      barometr.element.width(barometr.element.width()).height(barometr.element.height()).find('form').remove();
+      barometr.element.width(barometr.element.width()).height(barometr.element.height()).find('form').hide();
     });
 
     // chcheck if any callback functions are in the config
@@ -90,18 +97,50 @@
   };
 
   Barometr.prototype.init = function() {
-    var h1       = $('<h1/>', {text: this.config.question}).appendTo(this.element);
-    var form     = $('<form>', {method: 'POST', action: '/', id: this.config.formId, class: this.config.formClass}).appendTo(this.element);
-    var yes      = $('<input>', {type: 'radio', name: 'radio', id: 'yesRadio'}).appendTo(form);
-    var yesLabel = $('<label>', {text: 'Yes', attr: 'for=yesRadio'}).appendTo(form);
-    var no       = $('<input>', {type: 'radio', name: 'radio', id: 'noRadio'}).appendTo(form);
-    var noLabel  = $('<label>', {text: 'no', attr: 'for=noRadio'}).appendTo(form);
-    var button   = $('<button>', {text: this.config.buttonText}).appendTo(form);
+    $('<h1/>', {
+      text: this.config.question
+    }).appendTo(this.element);
+
+    var form     = $('<form>', {
+      method: 'POST'
+      ,action: '/'
+      ,id: this.config.formId
+      ,class: this.config.formClass
+    }).appendTo(this.element);
+
+    var i, len, answers = this.config.answers;
+    for (i = 0, len = answers.length; i < len; i += 1) {
+      $('<input>', {
+        type: 'radio'
+        ,name: 'radio'
+        ,id: 'answer#' + i
+      }).appendTo(form);
+
+      $('<label>', {
+        text: answers[i]
+        ,"for": 'answer#' + i
+      }).appendTo(form);
+    }
+
+    $('<button>', {text: this.config.buttonText}).appendTo(form);
+
     this.element.trigger('created.barometr');
   };
 
+  Barometr.prototype.processData = function(data) {
+    // console.log('resp data', data);
+    if (data.data) {
+      var $dl = $('<dl>');
+      $.each(data.data, function(k, v) {
+        // console.log('k',k,'data', v);
+        $('<dt>', {text: k}).appendTo($dl);
+        $('<dd>', {text: v}).appendTo($dl);
+      });
+      $dl.hide().appendTo(this.element).fadeIn(400);
+    }
+  };
+
   $.fn.barometr = function(options) {
-    console.log('inside barometr');
     new Barometr(this.first(), options);
     return this.first();
   };
